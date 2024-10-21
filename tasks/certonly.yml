@@ -1,0 +1,40 @@
+---
+
+- name: "Generate certificate"
+  tags: ["{{ cert.name }}"]
+  vars:
+    _authenticator: "{{ cert.authenticator | default(certbot_authenticator) }}"
+  block:
+
+    - name: Validate authenticator
+      ansible.builtin.assert:
+        that: _authenticator in certbot_allowed_authenticators
+        fail_msg: >-
+          Unhandled authenticator: '{{ _authenticator }}'.
+          Available values: '{{ certbot_allowed_authenticators | join("', '") }}'
+        quiet: true
+
+    - name: "Setup authenticator vars: {{ _authenticator }}"
+      ansible.builtin.include_tasks: "_set-{{ _authenticator }}-vars.yml"
+
+    - name: "Generate cert: {{ cert.name }}"
+      ansible.builtin.command: >-
+        docker compose run --rm
+          --user="{{ ansible_user_uid }}:{{ ansible_user_gid }}"
+          certbot certonly
+          --non-interactive
+          --agree-tos --email {{ certbot_email }}
+          {{ dry_run | default(false) | ternary('--dry-run', '') }}
+          --authenticator {{ _authenticator }} {{ _authenticator_options }}
+          --cert-name '{{ cert.name }}'
+          -d '{{ cert.domains | join("' -d '") }}'
+      args:
+        chdir: "{{ docker_project_path }}"
+      register: c_result
+      changed_when: true
+
+    - name: "Show cert generation result: {{ cert.name }}"
+      ansible.builtin.debug:
+        msg:
+          - "{{ c_result.stdout_lines }}"
+#         - "{{ c_result.stderr_lines }}"

@@ -1,0 +1,39 @@
+---
+
+# Docker project variables
+
+certbot_project_name: letsencrypt
+
+
+# Let's Encrypt project variables
+
+# Certbot default authenticator (webroot | dns-gandi)
+certbot_authenticator: webroot
+
+# Email used for registration and recovery contact
+certbot_email: you@example.net
+
+# Certificates
+letsencrypt_certs: []
+#  - name: 'default.net'
+#    domains:
+#      - 'default.net'
+#
+#  - name: 'example.net'
+#    domains:
+#      - 'example.net'
+#      - 'www.example.net'
+#    authenticator: dns-gandi
+#    gandi_key_name: key1
+
+# Gandi access tokens
+certbot_gandi_access_tokens: []
+#  # single / default key
+#  - xxxxxxxx-xxxxxxxx
+#
+#  # multiple keys
+#  - { name: key1, key: xxxxxxxx-xxxxxxxy }
+#  - { name: key2, key: xxxxxxxx-xxxxxxxz }
+
+# Number of seconds to wait for DNS propagation
+dns_gandi_propagation_seconds: 30

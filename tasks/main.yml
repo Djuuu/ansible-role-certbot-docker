@@ -1,0 +1,52 @@
+---
+
+## Init
+
+- name: Ensure project directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ docker_project_path }}"
+    - "{{ docker_project_path }}/etc"
+    - "{{ docker_project_path }}/log"
+    - "{{ docker_project_path }}/work"
+    - "{{ docker_project_path }}/.well-known/acme-challenge"
+  tags: ["init"]
+
+## Configure
+
+- name: Template Dockerfile
+  ansible.builtin.template:
+    src: Dockerfile
+    dest: "{{ docker_project_path }}/Dockerfile"
+    mode: '0644'
+
+- name: Template etc/cli.ini configuration file
+  ansible.builtin.template:
+    src:  etc/cli.ini.j2
+    dest: "{{ docker_project_path }}/etc/cli.ini"
+    mode: '0600'
+
+- name: Template etc/gandi-*.ini configuration files
+  vars:
+    _name: "{{ _gandi_token.name | default('default') }}"
+    _token: "{{ _gandi_token.token | default(_gandi_token) }}"
+  ansible.builtin.template:
+    src:  etc/gandi.ini.j2
+    dest: "{{ docker_project_path }}/etc/gandi-{{ _name }}.ini"
+    mode: '0600'
+  loop: "{{ certbot_gandi_access_tokens }}"
+  loop_control:
+    loop_var: _gandi_token
+  when: certbot_gandi_access_tokens | length > 0
+  no_log: true
+
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ docker_project_path }}/docker-compose.yml"
+    mode: '0644'
+    validate: "{{ docker_cli }} compose -f %s config"
+    backup: true

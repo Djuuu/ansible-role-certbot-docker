@@ -1,0 +1,15 @@
+---
+
+docker_project_name: "{{ certbot_project_name }}"
+
+
+certbot_allowed_authenticators:
+  - webroot
+  - dns-gandi
+
+certbot_authenticators: "{{
+    (
+      [certbot_authenticator]
+      + letsencrypt_certs | map(attribute='authenticator', default=certbot_authenticator)
+    ) | unique
+  }}"

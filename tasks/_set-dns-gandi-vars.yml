@@ -1,0 +1,11 @@
+---
+
+- name: Set dns-gandi authenticator options
+  vars:
+    _gandi_key_name: "{{ cert.gandi_key_name | default('default') }}"
+    _gandi_conf_file: "gandi-{{ _gandi_key_name }}.ini"
+    _gandi_options:
+      - "--dns-gandi-credentials /etc/letsencrypt/{{ _gandi_conf_file }}"
+      - "--dns-gandi-propagation-seconds {{ dns_gandi_propagation_seconds | default(10) }}"
+  ansible.builtin.set_fact:
+    _authenticator_options: "{{ _gandi_options | join(' ') }}"

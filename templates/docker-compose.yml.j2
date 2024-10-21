@@ -1,0 +1,22 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# {{ ansible_managed }}
+# {{ template_fullpath }}
+
+name: certbot
+
+services:
+
+  certbot:
+    #image: certbot/certbot
+    build:
+      context: .
+      network: host
+      target: certbot
+
+    network_mode: host
+
+    volumes:
+      - {{ docker_project_path }}/etc:/etc/letsencrypt
+      - {{ docker_project_path }}/log:/var/log/letsencrypt
+      - {{ docker_project_path }}/work:/var/lib/letsencrypt
+      - {{ docker_project_path }}/.well-known/acme-challenge:/var/tmp/.well-known/acme-challenge

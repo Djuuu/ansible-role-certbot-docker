@@ -1,0 +1,5 @@
+---
+
+- name: Set webroot authenticator options
+  ansible.builtin.set_fact:
+    _authenticator_options: ""
