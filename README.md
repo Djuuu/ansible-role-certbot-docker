@@ -97,6 +97,10 @@ Install Let's Encrypt
     - djuuu.certbot_docker
 ```
 
+```bash
+ansible-playbook install-certbot.yml -e build=true
+```
+
 Generate certificate
 
 ```yaml

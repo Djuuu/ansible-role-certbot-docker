@@ -50,3 +50,30 @@
     mode: '0644'
     validate: "{{ docker_cmd }} compose -f %s config"
     backup: true
+
+## Build & cleanup
+
+- name: Cleanup & build
+  when: build | default(false)
+  block:
+    - name: Docker system prune
+      ansible.builtin.include_role:
+        name: djuuu.docker_project
+        tasks_from: system-prune
+      when: build | default(false)
+
+    - name: Build image
+      community.docker.docker_image_build:
+        docker_cli:  "{{ docker_cli | default(omit, true) }}"
+        name: certbot-gandi
+        path: "{{ docker_project_path }}"
+        pull: true
+        rebuild: always
+        target: certbot
+      register: certbot_build
+      when: build | default(false)
+
+    - name: Show build result
+      ansible.builtin.debug:
+        msg:
+          - "{{ certbot_build.stderr_lines }}"
