@@ -1,6 +1,6 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
 # {{ ansible_managed }}
-# {{ template_fullpath }}
+# {{ template_fullpath | regex_replace('^' ~ role_path, role_path | basename) }}
 
 # This is an example of the kind of things you can do in a configuration file.
 # All flags used by the client can be configured here. Run Certbot with
